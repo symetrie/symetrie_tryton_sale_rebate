@@ -72,22 +72,22 @@ Sale products::
     >>> sale_line = sale.lines.new()
     >>> sale_line.product = product
     >>> sale_line.quantity = 1
-    >>> sale_line.rebate == Decimal('0')
-    True
+    >>> sale_line.rebate
+    Decimal('0.00')
     >>> sale.save()
     >>> sale_line, = sale.lines
-    >>> sale_line.rebate == Decimal('0')
-    True
+    >>> sale_line.rebate
+    Decimal('0.00')
     >>> sale_line.unit_price = Decimal('13')
-    >>> sale_line.rebate == Decimal('13.33')
-    True
+    >>> sale_line.rebate
+    Decimal('13.33')
     >>> sale.save()
     >>> sale_line, = sale.lines
-    >>> sale_line.rebate == Decimal('13.33')
-    True
+    >>> sale_line.rebate
+    Decimal('13.33')
     >>> sale_line.rebate = Decimal('0')
-    >>> sale_line.unit_price == Decimal('15')
-    True
+    >>> sale_line.unit_price
+    Decimal('15.0000')
     >>> sale_line.rebate = Decimal('50')
-    >>> sale_line.unit_price == Decimal('7.5')
-    True
+    >>> sale_line.unit_price
+    Decimal('7.5000')
