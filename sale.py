@@ -73,14 +73,6 @@ class Line:
         super(Line, self).on_change_quantity()
         self.rebate = self.on_change_with_rebate()
 
-    @fields.depends('list_price', 'unit_price')
-    def on_change_unit_price(self):
-        try:
-            super(Line, self).on_change_unit_price()
-        except AttributeError:
-            pass
-        self.rebate = self.on_change_with_rebate()
-
     def get_invoice_line(self):
         InvoiceLine = Pool().get('account.invoice.line')
         lines = super(Line, self).get_invoice_line()
