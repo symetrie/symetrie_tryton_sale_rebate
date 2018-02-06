@@ -9,7 +9,7 @@ from trytond.tests.test_tryton import (
 
 class SaleRebateTestCase(ModuleTestCase):
     'Test Sale Rebate module'
-    module = 'symetrie_sale_rebate'
+    module = 'sale_rebate'
 
 
 def suite():

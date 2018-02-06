@@ -2,9 +2,10 @@
 # this repository contains the full copyright notices and license terms.
 
 from trytond.pool import Pool
-from sale import *
+from . import sale
+
 
 def register():
     Pool.register(
-        SaleLine,
-        module='symetrie_sale_rebate', type_='model')
+        sale.Line,
+        module='sale_rebate', type_='model')
