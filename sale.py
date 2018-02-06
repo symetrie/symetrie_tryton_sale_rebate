@@ -25,7 +25,7 @@ class Line:
                 'invisible': ((Eval('type') != 'line') | ~Eval('product')),
                 },
             depends=['type', 'product']),
-        'get_rebate', setter='set_rebate')
+        'on_change_with_rebate', setter='set_rebate')
 
     @fields.depends('list_price', 'unit_price')
     def on_change_with_rebate(self, name=None):
@@ -43,24 +43,6 @@ class Line:
         unit_price = (1 - (self.rebate / 100)) * self.list_price
         self.unit_price = unit_price.quantize(
             Decimal(str(10 ** -self.__class__.unit_price.digits[1])))
-
-    @classmethod
-    def _compute_rebate(self, list_price, unit_price):
-        if not unit_price:
-            unit_price = Decimal('0')
-        if not list_price:
-            value = Decimal('0')
-        else:
-            value = (1 - unit_price / list_price) * 100
-        return value.quantize(Decimal(str(10 ** -self.rebate.digits[1])))
-
-    @classmethod
-    def get_rebate(self, ids, name):
-        result = {}
-        for line in self.browse(ids):
-            result[line.id] = self._compute_rebate(line.list_price,
-                line.unit_price)
-        return result
 
     @classmethod
     def set_rebate(cls, lines, name, value):
@@ -97,7 +79,7 @@ class Line:
             super(Line, self).on_change_unit_price()
         except AttributeError:
             pass
-        self.rebate = self._compute_rebate(self.list_price, self.unit_price)
+        self.rebate = self.on_change_with_rebate()
 
     def get_invoice_line(self):
         InvoiceLine = Pool().get('account.invoice.line')
