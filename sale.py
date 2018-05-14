@@ -36,13 +36,17 @@ class Line:
         return rebate.quantize(
             Decimal(str(10 ** -self.__class__.rebate.digits[1])))
 
-    @fields.depends('list_price', 'rebate')
+    @fields.depends('list_price', 'rebate',
+        # XXX: From on_change_with_amoun
+        # https://bugs.tryton.org/issue5191
+        'type', 'quantity', 'sale', '_parent_sale.currency')
     def on_change_rebate(self):
         if self.list_price is None or self.rebate is None:
             return
         unit_price = (1 - (self.rebate / 100)) * self.list_price
         self.unit_price = unit_price.quantize(
             Decimal(str(10 ** -self.__class__.unit_price.digits[1])))
+        self.amount = self.on_change_with_amount()
 
     @classmethod
     def set_rebate(cls, lines, name, value):

@@ -78,9 +78,13 @@ Sale products::
     >>> sale_line, = sale.lines
     >>> sale_line.rebate
     Decimal('0.00')
+    >>> sale_line.amount
+    Decimal('15.00')
     >>> sale_line.unit_price = Decimal('13')
     >>> sale_line.rebate
     Decimal('13.33')
+    >>> sale_line.amount
+    Decimal('13.00')
     >>> sale.save()
     >>> sale_line, = sale.lines
     >>> sale_line.rebate
@@ -88,6 +92,10 @@ Sale products::
     >>> sale_line.rebate = Decimal('0')
     >>> sale_line.unit_price
     Decimal('15.0000')
+    >>> sale_line.amount
+    Decimal('15.00')
     >>> sale_line.rebate = Decimal('50')
     >>> sale_line.unit_price
     Decimal('7.5000')
+    >>> sale_line.amount
+    Decimal('7.50')
