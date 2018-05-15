@@ -39,7 +39,7 @@ class Line:
     @fields.depends('list_price', 'rebate',
         # XXX: From on_change_with_amoun
         # https://bugs.tryton.org/issue5191
-        'type', 'quantity', 'sale', '_parent_sale.currency')
+        'type', 'quantity', 'unit', 'sale', '_parent_sale.currency')
     def on_change_rebate(self):
         if self.list_price is None or self.rebate is None:
             return
