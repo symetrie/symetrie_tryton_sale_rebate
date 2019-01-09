@@ -9,8 +9,7 @@ from trytond.transaction import Transaction
 __all__ = ['Line']
 
 
-class Line:
-    __metaclass__ = PoolMeta
+class Line(metaclass=PoolMeta):
     __name__ = 'sale.line'
 
     list_price = fields.Numeric('List Price', digits=(16, 4),
