@@ -10,7 +10,6 @@ __all__ = ['Line']
 
 
 class Line:
-    __metaclass__ = PoolMeta
     __name__ = 'sale.line'
 
     list_price = fields.Numeric('List Price', digits=(16, 4),
