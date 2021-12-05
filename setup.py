@@ -2,20 +2,20 @@
 # This file is part of Tryton.  The COPYRIGHT file at the top level of
 # this repository contains the full copyright notices and license terms.
 
-from setuptools import setup
-import re
-import os
 import io
-try:
-    from configparser import ConfigParser
-except ImportError:
-    from ConfigParser import ConfigParser
+import os
+import re
+from configparser import ConfigParser
+from setuptools import setup, find_packages
 
 
 def read(fname):
-    return io.open(
+    content = io.open(
         os.path.join(os.path.dirname(__file__), fname),
         'r', encoding='utf-8').read()
+    content = re.sub(
+        r'(?m)^\.\. toctree::\r?\n((^$|^\s.*$)\r?\n)*', '', content)
+    return content
 
 
 def get_require_version(name):
@@ -27,8 +27,9 @@ def get_require_version(name):
         major_version, minor_version + 1)
     return require
 
+
 config = ConfigParser()
-config.readfp(open('tryton.cfg'))
+config.read_file(open(os.path.join(os.path.dirname(__file__), 'tryton.cfg')))
 info = dict(config.items('tryton'))
 for key in ('depends', 'extras_depend', 'xml'):
     if key in info:
@@ -47,35 +48,54 @@ if minor_version % 2:
         'hg+http://hg.tryton.org/modules/%s#egg=%s-%s' % (
             name[8:], name, version))
 
+local_version = []
+if os.environ.get('CI_JOB_ID'):
+    local_version.append(os.environ['CI_JOB_ID'])
+else:
+    for build in ['CI_BUILD_NUMBER', 'CI_JOB_NUMBER']:
+        if os.environ.get(build):
+            local_version.append(os.environ[build])
+        else:
+            local_version = []
+            break
+if local_version:
+    version += '+' + '.'.join(local_version)
 requires = []
 for dep in info.get('depends', []):
     if not re.match(r'(ir|res)(\W|$)', dep):
         requires.append(get_require_version('trytond_%s' % dep))
 requires.append(get_require_version('trytond'))
 
-tests_require = [get_require_version('proteus')]
+tests_require = []
 dependency_links = []
 if minor_version % 2:
-    # Add development index for testing with proteus
-    dependency_links.append('https://trydevpi.tryton.org/')
+    dependency_links.append(
+        'https://trydevpi.tryton.org/?local_version='
+        + '.'.join(local_version)
+        )
 
 setup(name=name,
     version=version,
-    description='Tryton module to add a rebate from party on price list',
-    long_description=read('README'),
-    author='Tryton',
-    author_email='',
-    url='http://www.tryton.org/',
+    description='bare new files',
+    long_description=read('README.rst'),
+    author='Symétrie',
+    author_email='jc.michel@symetrie.com',
+    url='https://symetrie.com',
     download_url=download_url,
-    keywords='tryton sale rebate',
+    project_urls={
+        "Bug Tracker": 'https://github.com/symetrie/symetrie_tryton_sale_rebate/issues',
+        "Source Code": 'https://github.com/symetrie/symetrie_tryton_sale_rebate',
+        },
+    keywords='',
     package_dir={'trytond.modules.sale_rebate': '.'},
-    packages=[
-        'trytond.modules.sale_rebate',
-        'trytond.modules.sale_rebate.tests',
-        ],
+    packages=(
+        ['trytond.modules.sale_rebate']
+        + ['trytond.modules.sale_rebate.%s' % p
+            for p in find_packages()]
+        ),
     package_data={
         'trytond.modules.sale_rebate': (info.get('xml', [])
-            + ['tryton.cfg', 'view/*.xml', 'locale/*.po', '*.odt',
+            + ['tryton.cfg', 'view/*.xml', 'locale/*.po', '*.fodt',
                 'icons/*.svg', 'tests/*.rst']),
         },
     classifiers=[
@@ -85,31 +105,30 @@ setup(name=name,
         'Intended Audience :: Developers',
         'Intended Audience :: Financial and Insurance Industry',
         'Intended Audience :: Legal Industry',
-        'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
+        'License :: OSI Approved :: '
+        'GNU General Public License v3 or later (GPLv3+)',
         'Natural Language :: English',
         'Natural Language :: French',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
         'Topic :: Office/Business',
         ],
     license='GPL-3',
+    python_requires='>=3.6',
     install_requires=requires,
     dependency_links=dependency_links,
     zip_safe=False,
     entry_points="""
     [trytond.modules]
     sale_rebate = trytond.modules.sale_rebate
-    """,
+    """,  # noqa: E501
     test_suite='tests',
     test_loader='trytond.test_loader:Loader',
     tests_require=tests_require,
-    use_2to3=True,
-    convert_2to3_doctests=[
-        'tests/scenario_sale_rebate.rst',
-        ],
     )
