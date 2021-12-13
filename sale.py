@@ -81,6 +81,7 @@ class Line(metaclass=PoolMeta):
         lines = super(Line, self).get_invoice_line()
         if hasattr(InvoiceLine, 'list_price'):
             for line in lines:
-                if line.unit_price == self.unit_price:
-                    line.list_price = self.list_price
+                if line.type == 'line':
+                    if line.unit_price == self.unit_price:
+                        line.list_price = self.list_price
         return lines
